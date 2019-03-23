@@ -39,6 +39,11 @@ public class SceneManager {
 		root.getChildren().add(n);
 	}
 
+	public void checkForEntitiesOutOfScreen() {
+		List<Sprite> removed = cleaner.cleanOutOfScreen(sprites);
+		this.sprites.removeAll(removed);
+	}
+
 	private void generateEntities() {
 		player = new Cannon(-25, (int) dim.getHeight() - 20);
 		root.getChildren().add(player.getNode());
@@ -112,15 +117,13 @@ public class SceneManager {
 	}
 
 	public void addParticles(List<Sprite> particles) {
-
 		this.particles = particles;
 		List<Node> nodes = new ArrayList<>();
 		for (Sprite s : particles) {
 			nodes.add(s.getNode());
 		}
 		root.getChildren().addAll(nodes);
-		cleaner.clean(particles, 2000);
-
+		cleaner.cleanParticles(particles, 2000);
 	}
 
 }

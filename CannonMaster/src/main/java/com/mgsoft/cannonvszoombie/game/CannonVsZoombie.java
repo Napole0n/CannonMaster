@@ -1,9 +1,11 @@
 package com.mgsoft.cannonvszoombie.game;
 
+import com.mgsoft.cannonvszoombie.animation.AnimatedSprite;
 import com.mgsoft.cannonvszoombie.animation.AnimationManager;
 import com.mgsoft.cannonvszoombie.animation.LinearTransition;
 import com.mgsoft.cannonvszoombie.animation.LinearTransition.Eixo;
 import com.mgsoft.cannonvszoombie.scene.SceneManager;
+import com.mgsoft.cannonvszoombie.sprite.MobFactory;
 import com.mgsoft.cannonvszoombie.sprite.Sprite;
 import com.mgsoft.cannonvszoombie.util.Util;
 
@@ -28,6 +30,7 @@ public class CannonVsZoombie {
 	private SceneManager sceneManager;
 	private AnimationManager animationManager;
 	private Dimension2D screenDimension;
+	private MobFactory mobFactory;
 	private int PointsCount = 0;
 	private int shootAngleAcc = 0;
 
@@ -40,6 +43,7 @@ public class CannonVsZoombie {
 
 		sceneManager = new SceneManager(screenDimension, root);
 		animationManager = new AnimationManager(sceneManager);
+		mobFactory = new MobFactory();
 
 		for (Node n : sceneManager.getAllNodes()) {
 			root.getChildren().add(n);
@@ -70,10 +74,13 @@ public class CannonVsZoombie {
 	}
 
 	private void runLogicClock() {
+		
 		new AnimationTimer() {
 			@Override
 			public void handle(long now) {
+				
 				MakeRandomEnemy();
+				sceneManager.checkForEntitiesOutOfScreen();
 
 				for (Sprite s : sceneManager.getSprites()) {
 					for (Sprite b : sceneManager.getBullets()) {
@@ -110,15 +117,18 @@ public class CannonVsZoombie {
 	}
 
 	public void MakeRandomEnemy() {
-		if (Math.random() < 0.01) {
-			Rectangle target = new Rectangle(80, 80, new Color(Math.random(), Math.random(), Math.random(), 1));
-			target.setTranslateX(screenDimension.getWidth() - target.getWidth());
-			target.setTranslateY(screenDimension.getHeight() - target.getHeight());
-			Sprite s = new Sprite(target, new Rectangle(80, 80));
+		
+		if (Math.random() < 0.06) {
+			AnimatedSprite man = mobFactory.getLittleMan();
+			man.getImageView().setScaleX(1.4);
+			man.getImageView().setScaleY(1.4);
+			man.getImageView().setTranslateX(screenDimension.getWidth());
+			man.getImageView().setTranslateY(screenDimension.getHeight() - 40);
+			Sprite s = new Sprite(man.getImageView(), new Rectangle(80, 80));
 			s.setHitBox(new Rectangle(80, 80));
 			sceneManager.addSprite(s);
-			LinearTransition animation = new LinearTransition(target, Eixo.X, -300, Duration.seconds(8));
-			animation.play();
+			man.play();
+			animationManager.walk(s.getNode(), Eixo.X, -screenDimension.getWidth(), Duration.seconds(5));
 
 		}
 	}

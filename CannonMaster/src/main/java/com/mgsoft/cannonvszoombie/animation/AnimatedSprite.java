@@ -33,12 +33,20 @@ public class AnimatedSprite extends Transition {
 
 	@Override
 	protected void interpolate(double k) {
-		final int index = Math.min((int) Math.floor(k * count), count - 1);
+		int index = Math.min((int) Math.floor(k * count), count - 1);
 		if (index != lastIndex) {
-			final int x = (index % columns) * width + offsetX;
-			final int y = (index / columns) * height + offsetY;
+			int x = (index % columns) * width - offsetX;
+			int y = (index / columns) * height + offsetY;
+
 			imageView.setViewport(new Rectangle2D(x, y, width, height));
+			System.out.println(
+					"K = " + k + " Index = " + index + " X = " + x + " Y = " + y + " W =" + width + " H = " + height);
 			lastIndex = index;
 		}
 	}
+
+	public ImageView getImageView() {
+		return imageView;
+	}
+	
 }
