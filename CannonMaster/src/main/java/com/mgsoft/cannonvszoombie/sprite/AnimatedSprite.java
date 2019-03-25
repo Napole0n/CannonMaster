@@ -1,4 +1,4 @@
-package com.mgsoft.cannonvszoombie.animation;
+package com.mgsoft.cannonvszoombie.sprite;
 
 import javafx.animation.Interpolator;
 import javafx.animation.Transition;
@@ -29,8 +29,9 @@ public class AnimatedSprite extends Transition {
 		this.height = height;
 		setCycleDuration(duration);
 		setInterpolator(Interpolator.LINEAR);
+		setCycleCount(INDEFINITE);
 	}
-
+	
 	@Override
 	protected void interpolate(double k) {
 		int index = Math.min((int) Math.floor(k * count), count - 1);
@@ -39,8 +40,6 @@ public class AnimatedSprite extends Transition {
 			int y = (index / columns) * height + offsetY;
 
 			imageView.setViewport(new Rectangle2D(x, y, width, height));
-			System.out.println(
-					"K = " + k + " Index = " + index + " X = " + x + " Y = " + y + " W =" + width + " H = " + height);
 			lastIndex = index;
 		}
 	}

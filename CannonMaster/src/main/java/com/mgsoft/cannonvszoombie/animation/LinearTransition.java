@@ -31,8 +31,8 @@ public class LinearTransition {
 	private void initialize() {
 		timeline = new Timeline();
 		timeline.setCycleCount(1);
-		KeyValue keyValue = eixo == Eixo.X ? new KeyValue(node.translateXProperty(), distance, Interpolator.EASE_BOTH)
-				: new KeyValue(node.translateYProperty(), distance, Interpolator.EASE_BOTH);
+		KeyValue keyValue = eixo == Eixo.X ? new KeyValue(node.translateXProperty(), distance, Interpolator.LINEAR)
+				: new KeyValue(node.translateYProperty(), distance, Interpolator.LINEAR);
 		KeyFrame keyFrame = new KeyFrame(duration, keyValue);
 		timeline.getKeyFrames().add(keyFrame);
 	}

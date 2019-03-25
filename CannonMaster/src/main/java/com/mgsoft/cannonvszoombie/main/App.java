@@ -17,7 +17,8 @@ public class App extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 
-		primaryStage.setScene(theGame.getScene());
+		primaryStage.setScene(theGame.getSceneManager().getScene());
+		primaryStage.setResizable(false);
 		primaryStage.show();
 
 	}

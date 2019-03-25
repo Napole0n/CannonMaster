@@ -3,14 +3,31 @@ package com.mgsoft.cannonvszoombie.scene;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mgsoft.cannonvszoombie.animation.AnimationManager;
 import com.mgsoft.cannonvszoombie.animation.LinearTransition;
 import com.mgsoft.cannonvszoombie.animation.LinearTransition.Eixo;
+import com.mgsoft.cannonvszoombie.sprite.AnimatedSprite;
+import com.mgsoft.cannonvszoombie.sprite.Bullet;
+import com.mgsoft.cannonvszoombie.sprite.BulletFactory;
+import com.mgsoft.cannonvszoombie.sprite.BulletFactory.BulletType;
 import com.mgsoft.cannonvszoombie.sprite.Cannon;
 import com.mgsoft.cannonvszoombie.sprite.Sprite;
+import com.mgsoft.cannonvszoombie.util.Util;
 
 import javafx.geometry.Dimension2D;
+import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.Scene;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundRepeat;
+import javafx.scene.layout.BackgroundSize;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -20,17 +37,37 @@ public class SceneManager {
 
 	private Dimension2D dim;
 	private Pane root;
+	private Scene scene;
+	private HBox hudBox;
+
+	private AnimationManager animationManager;
+	private int shootAngleAcc = 0;
+	private Bullet actualBullet;
+	private boolean canShoot = true;
+
 	private List<Sprite> sprites = new ArrayList<>();
 	private List<Sprite> particles = new ArrayList<>();
 	private List<Sprite> bullets = new ArrayList<>();
 	private SpriteCleaner cleaner;
+	private ProgressBar bulletProgressBar = new ProgressBar(0);
 
 	private Sprite player;
 
-	public SceneManager(Dimension2D screenDimension, Pane rootPane) {
+	public SceneManager(Dimension2D screenDimension) {
 		this.dim = screenDimension;
-		root = rootPane;
-		cleaner = new SpriteCleaner(rootPane);
+		root = new Pane();
+		hudBox = new HBox();
+		hudBox.setPrefSize(screenDimension.getWidth(), screenDimension.getHeight());
+		root.setPrefSize(screenDimension.getWidth(), screenDimension.getHeight());
+		root.getChildren().add(hudBox);
+		root.setBackground(new Background(
+				new BackgroundImage(new Image(Util.getResource("background.png")), BackgroundRepeat.REPEAT,
+						BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT, BackgroundSize.DEFAULT)));
+		scene = new Scene(root, Color.FIREBRICK);
+		cleaner = new SpriteCleaner(root);
+		animationManager = new AnimationManager(this);
+		actualBullet = BulletFactory.getBullet(BulletType.SIMPLE);
+
 		generateEntities();
 
 	}
@@ -47,6 +84,11 @@ public class SceneManager {
 	private void generateEntities() {
 		player = new Cannon(-25, (int) dim.getHeight() - 20);
 		root.getChildren().add(player.getNode());
+
+		bulletProgressBar.setScaleX(0.8);
+		bulletProgressBar.setTranslateX(player.getNode().getTranslateX()+20);
+		bulletProgressBar.setTranslateY(player.getNode().getTranslateY()-40);
+		hudBox.getChildren().add(bulletProgressBar);
 	}
 
 	public List<Node> getAllNodes() {
@@ -124,6 +166,82 @@ public class SceneManager {
 		}
 		root.getChildren().addAll(nodes);
 		cleaner.cleanParticles(particles, 2000);
+	}
+
+	public Pane getRoot() {
+		return root;
+	}
+
+	public void setRoot(Pane root) {
+		this.root = root;
+	}
+
+	public Scene getScene() {
+		return scene;
+	}
+
+	public void setScene(Scene scene) {
+		this.scene = scene;
+	}
+
+	public AnimationManager getAnimationManager() {
+		return animationManager;
+	}
+
+	public void setAnimationManager(AnimationManager animationManager) {
+		this.animationManager = animationManager;
+	}
+
+	public int getShootAngleAcc() {
+		return shootAngleAcc;
+	}
+
+	public void setShootAngleAcc(int shootAngleAcc) {
+		this.shootAngleAcc = shootAngleAcc;
+	}
+
+	public Bullet getActualBullet() {
+		return actualBullet;
+	}
+
+	public void setActualBullet(Bullet actualBullet) {
+		this.actualBullet = actualBullet;
+	}
+
+	public boolean isCanShoot() {
+		return canShoot;
+	}
+
+	public void setCanShoot(boolean canShoot) {
+		this.canShoot = canShoot;
+	}
+
+	public SpriteCleaner getCleaner() {
+		return cleaner;
+	}
+
+	public void setCleaner(SpriteCleaner cleaner) {
+		this.cleaner = cleaner;
+	}
+
+	public ProgressBar getBulletProgressBar() {
+		return bulletProgressBar;
+	}
+
+	public void setBulletProgressBar(ProgressBar bulletProgressBar) {
+		this.bulletProgressBar = bulletProgressBar;
+	}
+
+	public void setSprites(List<Sprite> sprites) {
+		this.sprites = sprites;
+	}
+
+	public void setParticles(List<Sprite> particles) {
+		this.particles = particles;
+	}
+
+	public void setBullets(List<Sprite> bullets) {
+		this.bullets = bullets;
 	}
 
 }

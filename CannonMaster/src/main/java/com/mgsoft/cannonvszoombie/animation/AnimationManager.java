@@ -31,31 +31,31 @@ public class AnimationManager {
 		List<Sprite> particles = new ArrayList<>();
 		for (int i = 0; i < bloodParticles; i++) {
 			Color c = Math.random() * 5 < 2 ? Color.DARKRED : Color.RED;
-			Circle circle = new Circle(Math.random() * 10, c);
+			Circle circle = new Circle(Math.random() * 3, c);
 			Sprite sprite = new Sprite(circle, new Rectangle());
 			particles.add(sprite);
 		}
 		sceneManager.addParticles(particles);
 		ProjectileAnimation anim;
 		for (Sprite s : particles) {
-			anim = new ProjectileAnimation(s, Math.random() * 360, Math.random() * 100, where.getX(), where.getY(),
+			anim = new ProjectileAnimation(s, Math.random() * 360, Math.random() * 50, where.getX(), where.getY(),
 					screenDimension);
 			anim.start();
 		}
 
 	}
 
-	public void walk(Node node, Eixo eixo, double distance, Duration duration) {
+	public void walk(final Node node, final Eixo eixo,final double toX,final Duration duration) {
 		Util.runLater(new Runnable() {
 			@Override
 			public void run() {
-				new LinearTransition(node, eixo, distance, duration).play();
+				new LinearTransition(node, eixo, toX, duration).play();
 			}
 		});
 
 	}
 
-	public void runFireAnimation(Point2D from, double angle, double power) {
+	public void runFireAnimation(final Point2D from, final double angle, final double power) {
 		Util.runLater(new Runnable() {
 			@Override
 			public void run() {

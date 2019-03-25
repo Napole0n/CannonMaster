@@ -1,106 +1,80 @@
 package com.mgsoft.cannonvszoombie.game;
 
-import com.mgsoft.cannonvszoombie.animation.AnimatedSprite;
-import com.mgsoft.cannonvszoombie.animation.AnimationManager;
-import com.mgsoft.cannonvszoombie.animation.LinearTransition;
-import com.mgsoft.cannonvszoombie.animation.LinearTransition.Eixo;
+
+import com.mgsoft.cannonvszoombie.level.LevelController;
 import com.mgsoft.cannonvszoombie.scene.SceneManager;
-import com.mgsoft.cannonvszoombie.sprite.MobFactory;
+import com.mgsoft.cannonvszoombie.sprite.Bullet;
 import com.mgsoft.cannonvszoombie.sprite.Sprite;
 import com.mgsoft.cannonvszoombie.util.Util;
 
 import javafx.animation.AnimationTimer;
 import javafx.geometry.Dimension2D;
 import javafx.geometry.Point2D;
-import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
-import javafx.util.Duration;
+
 
 public class CannonVsZoombie {
 
-	private final int PANE_WIDTH = 800;
-	private final int PANE_HEIGHT = 600;
 
-	private Pane root;
-	private Scene scene;
 	private SceneManager sceneManager;
-	private AnimationManager animationManager;
-	private Dimension2D screenDimension;
-	private MobFactory mobFactory;
+	private LevelController levelController;
 	private int PointsCount = 0;
-	private int shootAngleAcc = 0;
 
 	public CannonVsZoombie(Dimension2D screenDimension) {
-
-		root = new Pane();
-		root.setPrefSize(PANE_WIDTH, PANE_HEIGHT);
-		this.screenDimension = screenDimension;
-		scene = new Scene(root, Color.WHITE);
-
-		sceneManager = new SceneManager(screenDimension, root);
-		animationManager = new AnimationManager(sceneManager);
-		mobFactory = new MobFactory();
-
-		for (Node n : sceneManager.getAllNodes()) {
-			root.getChildren().add(n);
-		}
-
-		registerEventHandlers(scene);
+		sceneManager = new SceneManager(screenDimension);
+		this.levelController = new LevelController(sceneManager);
+		levelController.start();
+		registerEventHandlers();
 		runLogicClock();
-
 	}
-
-	private void registerEventHandlers(Scene s) {
-
-		scene.setOnKeyPressed(e -> {
+	
+	private void registerEventHandlers() {
+		sceneManager.getScene().setOnKeyPressed(e -> {
 			if (e.getCode().equals(KeyCode.UP)) {
 				sceneManager.getPlayer().getNode().setRotate(sceneManager.getPlayer().getNode().getRotate() - 2);
-				shootAngleAcc += 2;
+				sceneManager.setShootAngleAcc(sceneManager.getShootAngleAcc() + 2);
 
 			} else if (e.getCode().equals(KeyCode.DOWN)) {
 				sceneManager.getPlayer().getNode().setRotate(sceneManager.getPlayer().getNode().getRotate() + 2);
-				shootAngleAcc -= 2;
-			} else if (e.getCode().equals(KeyCode.SPACE)) {
+				sceneManager.setShootAngleAcc(sceneManager.getShootAngleAcc() - 2);
+			} else if (e.getCode().equals(KeyCode.SPACE)&&sceneManager.isCanShoot()) {
 
-				animationManager.runFireAnimation(new Point2D(5, 5), 45 + shootAngleAcc, 100);
+				sceneManager.getAnimationManager().runFireAnimation(new Point2D(5, 5), 45 + sceneManager.getShootAngleAcc(), 100);
+				sceneManager.setCanShoot(false);
+				sceneManager.getBulletProgressBar().setProgress(0);
 
 			}
 		});
-
 	}
 
 	private void runLogicClock() {
-		
+
 		new AnimationTimer() {
 			@Override
 			public void handle(long now) {
-				
-				MakeRandomEnemy();
+
 				sceneManager.checkForEntitiesOutOfScreen();
 
-				for (Sprite s : sceneManager.getSprites()) {
-					for (Sprite b : sceneManager.getBullets()) {
+				for (final Sprite s : sceneManager.getSprites()) {
+					for (final Sprite b : sceneManager.getBullets()) {
 						if (s.getNode().getBoundsInParent().intersects(b.getNode().getBoundsInParent())) {
 
 							Util.runLater(new Runnable() {
 								@Override
 								public void run() {
-									animationManager
+									sceneManager.getAnimationManager()
 											.runBloodAnimation(
 													new Point2D(
 															(s.getNode().getTranslateX())
-																	+ s.getHitBox().getWidth() / 2,
-															(s.getNode().getLayoutY()) + s.getHitBox().getHeight() / 2),
+																	+ 10,
+															(s.getNode().getLayoutY()) +20),
 													90);
 								}
 							});
 
 							Util.runLater(new Runnable() {
 								public void run() {
+									s.setDead(true);
 									sceneManager.removeSprite(s);
 									sceneManager.removeBullet(b);
 
@@ -110,43 +84,33 @@ public class CannonVsZoombie {
 						}
 					}
 				}
+				
+				for(Sprite b : sceneManager.getBullets()) {
+					if(b.isDead()) {
+						Util.runLater(new Runnable() {
+							
+							@Override
+							public void run() {
+								sceneManager.removeBullet(b);								
+							}
+						});
+						
+					}
+				}
+				
+				if(!sceneManager.isCanShoot()) {
+					if(sceneManager.getBulletProgressBar().getProgress()>=1) {
+						sceneManager.setCanShoot(true);
+					}else {
+						sceneManager.getBulletProgressBar().setProgress(sceneManager.getBulletProgressBar().getProgress()+0.03);
+					}
+				}
+				
+				
 			}
 
 		}.start();
 
-	}
-
-	public void MakeRandomEnemy() {
-		
-		if (Math.random() < 0.06) {
-			AnimatedSprite man = mobFactory.getLittleMan();
-			man.getImageView().setScaleX(1.4);
-			man.getImageView().setScaleY(1.4);
-			man.getImageView().setTranslateX(screenDimension.getWidth());
-			man.getImageView().setTranslateY(screenDimension.getHeight() - 40);
-			Sprite s = new Sprite(man.getImageView(), new Rectangle(80, 80));
-			s.setHitBox(new Rectangle(80, 80));
-			sceneManager.addSprite(s);
-			man.play();
-			animationManager.walk(s.getNode(), Eixo.X, -screenDimension.getWidth(), Duration.seconds(5));
-
-		}
-	}
-
-	public Pane getRoot() {
-		return root;
-	}
-
-	public void setRoot(Pane root) {
-		this.root = root;
-	}
-
-	public Scene getScene() {
-		return scene;
-	}
-
-	public void setScene(Scene scene) {
-		this.scene = scene;
 	}
 
 	public SceneManager getSceneManager() {
@@ -155,14 +119,6 @@ public class CannonVsZoombie {
 
 	public void setSceneManager(SceneManager sceneManager) {
 		this.sceneManager = sceneManager;
-	}
-
-	public AnimationManager getAnimationManager() {
-		return animationManager;
-	}
-
-	public void setAnimationManager(AnimationManager animationManager) {
-		this.animationManager = animationManager;
 	}
 
 }

@@ -19,13 +19,13 @@ public class SpriteCleaner {
 		this.root = rootPane;
 	}
 
-	public void cleanParticles(List<Sprite> sprites, int millis) {
+	public void cleanParticles(final List<Sprite> sprites, int millis) {
 
 		Task<Void> task = new Task<Void>() {
 			@Override
 			protected Void call() throws Exception {
 				Thread.sleep(1000);
-				for (Sprite s : sprites) {
+				for (final Sprite s : sprites) {
 					Util.runLater(new Runnable() {
 						@Override
 						public void run() {
@@ -39,9 +39,9 @@ public class SpriteCleaner {
 		new Thread(task).start();
 	}
 
-	public List<Sprite> cleanOutOfScreen(List<Sprite> sprites) {
+	public List<Sprite> cleanOutOfScreen(final List<Sprite> sprites) {
 
-		List<Sprite> removedSprites = new ArrayList<>();
+		final List<Sprite> removedSprites = new ArrayList<>();
 
 		Util.runLater(new Runnable() {
 			@Override
@@ -55,7 +55,6 @@ public class SpriteCleaner {
 
 			}
 		});
-		System.out.println("Lol");
 		return removedSprites;
 	}
 }

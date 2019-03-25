@@ -44,15 +44,16 @@ public class ProjectileAnimation extends NodeAnimation {
 		double vX = velocidade * (Math.cos(Math.toRadians(angle)));
 		double vY = velocidade * (Math.sin(Math.toRadians(angle)));
 
-		t0 = (((TimeUnit.MILLISECONDS.convert(time, TimeUnit.NANOSECONDS)) - timeInit) * 0.008 );
+		t0 = (((TimeUnit.MILLISECONDS.convert(time, TimeUnit.NANOSECONDS)) - timeInit) * 0.006 );
 		x = x0 + vX * t0;
 		y = dim.getHeight() - (y0 + vY * t0 + 0.5 * gravidade * Math.pow(t0, 2));
 		nodeToMove.setTranslateX(x);
 		nodeToMove.setTranslateY(y);
 
 		if (y > dim.getHeight() && running) {
-			stop();
 			sprite.setDead(true);
+			stop();
+			
 		}
 
 		if (!running) {

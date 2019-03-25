@@ -6,16 +6,19 @@ import javafx.animation.AnimationTimer;
 import javafx.scene.Node;
 import javafx.scene.image.ImageView;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Shape;
 
 public class Sprite {
 
 	private Node node;
-	private Rectangle hitBox;
+	private Shape hitBox;
 	private AnimationTimer animation;
 	private boolean dead = false;
+	private int life;
+	
  
 
-	public Sprite(Node nodeIn, Rectangle hitBox) {
+	public Sprite(Node nodeIn, Shape hitBox) {
 		this.node = nodeIn;
 		this.hitBox = hitBox;
 	}
@@ -32,11 +35,11 @@ public class Sprite {
 		animation.start();
 	}
 
-	public Rectangle getHitBox() {
+	public Shape getHitBox() {
 		return hitBox;
 	}
 
-	public void setHitBox(Rectangle hitBox) {
+	public void setHitBox(Shape hitBox) {
 		this.hitBox = hitBox;
 	}
 
